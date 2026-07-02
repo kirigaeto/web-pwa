@@ -282,6 +282,11 @@ function openProductModal(productId = null) {
   const inputCategory = document.getElementById('product-category');
   const inputUnit = document.getElementById('product-unit');
 
+  if (!modal || !inputId || !inputName || !inputDescription || !inputCategory || !inputUnit) {
+    console.error('Form elements not found. Check HTML IDs.');
+    return;
+  }
+
   if (productId) {
     const product = products.find((item) => item.id === productId);
     if (!product) {
@@ -435,30 +440,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const requestButton = document.getElementById('generate-request');
   const addButton = document.getElementById('add-product');
-  const closeRequestButtons = [
-    document.getElementById('close-request'),
-    document.getElementById('close-request-bottom'),
-  ];
   const copyButton = document.getElementById('copy-request');
   const resetButton = document.getElementById('reset-request');
   const closeProductButton = document.getElementById('close-product-modal');
   const cancelProductButton = document.getElementById('cancel-product');
   const productForm = document.getElementById('product-form');
 
-  requestButton.addEventListener('click', () => {
-    const items = getNeedItems();
-    openRequestModal(items);
-  });
+  const closeRequestButtons = [
+    document.getElementById('close-request'),
+    document.getElementById('close-request-bottom'),
+  ].filter(Boolean);
 
-  addButton.addEventListener('click', () => openProductModal());
+  if (!requestButton || !addButton || !closeProductButton || !cancelProductButton || !productForm) {
+    console.error('Critical form elements not found');
+    return;
+  }
+
+  if (requestButton) {
+    requestButton.addEventListener('click', () => {
+      const items = getNeedItems();
+      openRequestModal(items);
+    });
+  }
+
+  if (addButton) {
+    addButton.addEventListener('click', () => openProductModal());
+  }
 
   closeRequestButtons.forEach((button) => {
-    button.addEventListener('click', closeRequestModal);
+    if (button) button.addEventListener('click', closeRequestModal);
   });
 
-  copyButton.addEventListener('click', () => {
-    copyRequestText();
-  });
+  if (copyButton) {
+    copyButton.addEventListener('click', () => {
+      copyRequestText();
+    });
+  }
 
   if (resetButton) {
     resetButton.addEventListener('click', () => {
@@ -467,9 +484,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  closeProductButton.addEventListener('click', closeProductModal);
-  cancelProductButton.addEventListener('click', closeProductModal);
-  productForm.addEventListener('submit', handleProductFormSubmit);
+  if (closeProductButton) {
+    closeProductButton.addEventListener('click', closeProductModal);
+  }
+
+  if (cancelProductButton) {
+    cancelProductButton.addEventListener('click', closeProductModal);
+  }
+
+  if (productForm) {
+    productForm.addEventListener('submit', handleProductFormSubmit);
+  }
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
