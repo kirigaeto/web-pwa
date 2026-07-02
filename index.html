@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Бар и расходники</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#eef4ff">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.svg">
+  <link rel="mask-icon" href="assets/icons/icon-192.svg" color="#0064ff">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Добро пожаловать</p>
+        <h1>Бар и расходники</h1>
+      </div>
+      <button class="profile-btn" aria-label="Открыть профиль">👤</button>
+    </header>
+
+    <section class="hero-card">
+      <div>
+        <p class="hero-label">Сегодня</p>
+        <h2 class="hero-title">Управление запасами</h2>
+        <p class="hero-text">Быстрый обзор категорий и товаров, чтобы всегда быть готовым к заказу.</p>
+      </div>
+      <span class="hero-badge">iOS 18</span>
+    </section>
+
+    <section class="search-bar">
+      <label class="search-field" for="search-input">
+        <span class="search-icon">🔍</span>
+        <input id="search-input" type="search" placeholder="Поиск товаров" autocomplete="off">
+      </label>
+    </section>
+
+    <section class="action-row">
+      <button class="primary-button" id="generate-request">Сформировать заявку</button>
+      <button class="secondary-button" id="add-product">Добавить товар</button>
+      <button class="secondary-button" id="install-app" hidden>Установить приложение</button>
+    </section>
+
+    <section class="category-tabs" aria-label="Категории">
+      <button class="category-btn active" data-category="bar">☕ Бар</button>
+      <button class="category-btn" data-category="expendables">🥤 Расходники</button>
+      <button class="category-btn" data-category="household">🧹 Хозтовары</button>
+    </section>
+
+    <main class="content">
+      <section class="section" data-category="bar">
+        <div class="section-header">
+          <div>
+            <p class="section-title">Бар</p>
+            <p class="section-subtitle">Популярные напитки и аксессуары</p>
+          </div>
+          <a href="#" class="section-link">Все</a>
+        </div>
+
+        <div class="card-grid" id="bar-cards"></div>
+      </section>
+
+      <section class="section" data-category="expendables" hidden>
+        <div class="section-header">
+          <div>
+            <p class="section-title">Расходники</p>
+            <p class="section-subtitle">Все, что нужно для работы</p>
+          </div>
+          <a href="#" class="section-link">Все</a>
+        </div>
+
+        <div class="card-grid" id="expendables-cards"></div>
+      </section>
+
+      <section class="section" data-category="household" hidden>
+        <div class="section-header">
+          <div>
+            <p class="section-title">Хозтовары</p>
+            <p class="section-subtitle">Поддерживайте порядок</p>
+          </div>
+          <a href="#" class="section-link">Все</a>
+        </div>
+
+        <div class="card-grid" id="household-cards"></div>
+      </section>
+    </main>
+
+    <div class="no-results" id="no-results" hidden>Ничего не найдено</div>
+  </div>
+
+  <div class="request-modal" id="request-modal" aria-hidden="true">
+    <div class="request-panel" role="dialog" aria-modal="true" aria-labelledby="request-title">
+      <div class="request-header">
+        <div>
+          <p class="eyebrow">Заявка</p>
+          <h2 id="request-title">Товары для заказа</h2>
+        </div>
+        <button class="icon-button" id="close-request" aria-label="Закрыть заявку">✕</button>
+      </div>
+
+      <div class="request-content">
+        <div class="request-summary" id="request-summary">Список товаров, помеченных как «Нужно заказать».</div>
+        <ul class="request-list" id="request-list"></ul>
+      </div>
+
+      <div class="request-actions">
+        <button class="secondary-button" id="copy-request">Копировать заявку</button>
+        <button class="ghost-button" id="close-request-bottom">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-modal" id="product-modal" aria-hidden="true">
+    <div class="product-panel" role="dialog" aria-modal="true" aria-labelledby="product-modal-title">
+      <div class="request-header">
+        <div>
+          <p class="eyebrow" id="product-modal-mode">Добавление товара</p>
+          <h2 id="product-modal-title">Новый товар</h2>
+        </div>
+        <button class="icon-button" id="close-product-modal" aria-label="Закрыть форму">✕</button>
+      </div>
+
+      <form class="product-form" id="product-form">
+        <input type="hidden" id="product-id">
+
+        <label class="field-label" for="product-name">Название</label>
+        <input class="field-input" id="product-name" type="text" required>
+
+        <label class="field-label" for="product-description">Описание</label>
+        <textarea class="field-input" id="product-description" rows="3"></textarea>
+
+        <label class="field-label" for="product-quantity">Количество</label>
+        <input class="field-input" id="product-quantity" type="number" min="1" value="1">
+
+        <label class="field-label" for="product-category">Категория</label>
+        <select class="field-input" id="product-category">
+          <option value="bar">Бар</option>
+          <option value="expendables">Расходники</option>
+          <option value="household">Хозтовары</option>
+        </select>
+
+        <div class="request-actions">
+          <button class="primary-button" type="submit" id="save-product">Сохранить</button>
+          <button class="ghost-button" type="button" id="cancel-product">Отменить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="reminder-modal" id="reminder-modal" aria-hidden="true">
+    <div class="reminder-panel" role="dialog" aria-modal="true" aria-labelledby="reminder-title">
+      <div class="request-header">
+        <div>
+          <p class="eyebrow">📦 Проверка товаров</p>
+          <h2 id="reminder-title">Уже 14:00.</h2>
+        </div>
+        <button class="icon-button" id="close-reminder-modal" aria-label="Закрыть напоминание">✕</button>
+      </div>
+
+      <div class="reminder-content">
+        <p>Не забудьте проверить остатки и сформировать заявку.</p>
+      </div>
+
+      <div class="request-actions">
+        <button class="primary-button" id="start-check">✅ Начать проверку</button>
+        <button class="secondary-button" id="remind-later">⏰ Напомнить позже</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+:root {
+  /* Цвета */
+  --color-background: #eef4ff;
+  --color-surface: rgba(255, 255, 255, 0.84);
+  --color-surface-strong: #ffffff;
+  --color-border: rgba(114, 132, 161, 0.16);
+  --color-primary: #0064ff;
+  --color-primary-soft: #e8f0ff;
+  --color-text: #111827;
+  --color-muted: #6b7280;
+  --color-muted-strong: #475569;
+
+  /* Тени и радиусы */
+  --shadow-soft: 0 30px 60px rgba(15, 23, 42, 0.09);
+  --shadow-card: 0 18px 40px rgba(15, 23, 42, 0.08);
+  --radius: 20px;
+  --radius-sm: 16px;
+
+  /* Отступы */
+  --spacing-xsmall: 8px;
+  --spacing-small: 12px;
+  --spacing-medium: 18px;
+  --spacing-large: 24px;
+  --spacing-xlarge: 32px;
+
+  /* Типографика */
+  --font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-base: 16px;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
