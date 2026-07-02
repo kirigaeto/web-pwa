@@ -33,7 +33,6 @@
         <h2 class="hero-title">Управление запасами</h2>
         <p class="hero-text">Быстрый обзор категорий и товаров, чтобы всегда быть готовым к заказу.</p>
       </div>
-      <span class="hero-badge">iOS 18</span>
     </section>
 
     <section class="search-bar">
@@ -46,13 +45,13 @@
     <section class="action-row">
       <button class="primary-button" id="generate-request">Сформировать заявку</button>
       <button class="secondary-button" id="add-product">Добавить товар</button>
-      <button class="secondary-button" id="install-app" hidden>Установить приложение</button>
     </section>
 
     <section class="category-tabs" aria-label="Категории">
       <button class="category-btn active" data-category="bar">☕ Бар</button>
       <button class="category-btn" data-category="expendables">🥤 Расходники</button>
       <button class="category-btn" data-category="household">🧹 Хозтовары</button>
+      <button class="category-btn" data-category="kitchen">🍽 Кухня</button>
     </section>
 
     <main class="content">
@@ -91,6 +90,18 @@
 
         <div class="card-grid" id="household-cards"></div>
       </section>
+
+      <section class="section" data-category="kitchen" hidden>
+        <div class="section-header">
+          <div>
+            <p class="section-title">Кухня</p>
+            <p class="section-subtitle">Все для приготовления и сервировки</p>
+          </div>
+          <a href="#" class="section-link">Все</a>
+        </div>
+
+        <div class="card-grid" id="kitchen-cards"></div>
+      </section>
     </main>
 
     <div class="no-results" id="no-results" hidden>Ничего не найдено</div>
@@ -113,6 +124,7 @@
 
       <div class="request-actions">
         <button class="secondary-button" id="copy-request">Копировать заявку</button>
+        <button class="secondary-button" id="reset-request">Сбросить заявку</button>
         <button class="ghost-button" id="close-request-bottom">Закрыть</button>
       </div>
     </div>
@@ -137,14 +149,20 @@
         <label class="field-label" for="product-description">Описание</label>
         <textarea class="field-input" id="product-description" rows="3"></textarea>
 
-        <label class="field-label" for="product-quantity">Количество</label>
-        <input class="field-input" id="product-quantity" type="number" min="1" value="1">
+        <label class="field-label" for="product-unit">Единица</label>
+        <select class="field-input" id="product-unit">
+          <option value="шт">Штука</option>
+          <option value="упаковка">Упаковка</option>
+          <option value="литр">Л</option>
+          <option value="кг">Кг</option>
+        </select>
 
         <label class="field-label" for="product-category">Категория</label>
         <select class="field-input" id="product-category">
           <option value="bar">Бар</option>
           <option value="expendables">Расходники</option>
           <option value="household">Хозтовары</option>
+          <option value="kitchen">Кухня</option>
         </select>
 
         <div class="request-actions">

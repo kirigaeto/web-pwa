@@ -6,17 +6,12 @@ import { isTodayCheckDone, markTodayCheckDone, shouldShowReminder, scheduleRemin
 import { initSearchInput, showNoResults, initReminderModal, openReminderModal, closeReminderModal } from './ui.js';
 
 const STORAGE_KEY = 'products';
-const STATUS_ORDER = ['have', 'low', 'need'];
+const STATUS_ORDER = ['have', 'need'];
 const STATUS_META = {
   have: {
     text: 'Есть',
     icon: '🟢',
     className: 'status-have',
-  },
-  low: {
-    text: 'Заканчивается',
-    icon: '🟡',
-    className: 'status-low',
   },
   need: {
     text: 'Нужно заказать',
@@ -54,7 +49,7 @@ function renderStatus(card, status) {
   const meta = STATUS_META[status] || STATUS_META.have;
 
   card.dataset.status = status;
-  card.classList.remove('status-have', 'status-low', 'status-need');
+  card.classList.remove('status-have', 'status-need');
   card.classList.add(meta.className);
 
   if (statusElement) {
@@ -70,6 +65,7 @@ function createCardElement(product) {
   card.dataset.category = product.category;
   card.dataset.status = product.status;
 
+  const productUnit = product.unit || 'шт';
   card.innerHTML = `
     <div class="card-actions">
       <button class="icon-button edit-card" type="button" aria-label="Редактировать товар">✎</button>
@@ -78,6 +74,7 @@ function createCardElement(product) {
     <div class="product-icon">${category.icon}</div>
     <h3>${product.name}</h3>
     <p>${product.description}</p>
+    <div class="product-unit">${productUnit}</div>
     <div class="status-row"><span class="product-status"></span></div>
   `;
 
@@ -89,10 +86,12 @@ function renderProducts(items) {
   const barContainer = document.getElementById('bar-cards');
   const expendablesContainer = document.getElementById('expendables-cards');
   const householdContainer = document.getElementById('household-cards');
+  const kitchenContainer = document.getElementById('kitchen-cards');
 
   barContainer.innerHTML = '';
   expendablesContainer.innerHTML = '';
   householdContainer.innerHTML = '';
+  kitchenContainer.innerHTML = '';
 
   items.forEach((product) => {
     const card = createCardElement(product);
@@ -102,6 +101,8 @@ function renderProducts(items) {
       expendablesContainer.appendChild(card);
     } else if (product.category === 'household') {
       householdContainer.appendChild(card);
+    } else if (product.category === 'kitchen') {
+      kitchenContainer.appendChild(card);
     }
   });
 }
@@ -173,6 +174,7 @@ function getNeedItems() {
       id: product.id,
       name: product.name,
       quantity: 1,
+      unit: product.unit || 'шт',
     }));
 }
 
@@ -184,16 +186,20 @@ function getCurrentRequestItems() {
 
   return Array.from(list.querySelectorAll('.request-item')).map((item) => {
     const name = item.dataset.productName || '';
+    const unit = item.dataset.productUnit || 'шт';
     const quantityInput = item.querySelector('.request-quantity-input');
     const quantity = Math.max(1, parseInt(quantityInput?.value, 10) || 1);
-    return { name, quantity };
+    return { name, quantity, unit };
   });
 }
 
 function formatRequestItem(item) {
-  return item.quantity > 1
-    ? `${item.name} — ${item.quantity} шт.`
-    : item.name;
+  const unit = item.unit || 'шт';
+  if (item.quantity === 1) {
+    return unit === 'шт' ? item.name : `${item.name} — 1 ${unit}`;
+  }
+
+  return `${item.name} — ${item.quantity} ${unit}`;
 }
 
 function renderRequestList(items) {
@@ -216,11 +222,15 @@ function renderRequestList(items) {
     const listItem = document.createElement('li');
     listItem.className = 'request-item';
     listItem.dataset.productName = item.name;
+    listItem.dataset.productUnit = item.unit || 'шт';
     listItem.innerHTML = `
       <span class="request-item-name">${item.name}</span>
       <label class="request-quantity-label">
         Кол-во
-        <input type="number" min="1" value="${item.quantity}" class="request-quantity-input">
+        <div class="request-quantity-control">
+          <input type="number" min="1" value="${item.quantity}" class="request-quantity-input">
+          <span class="request-unit">${item.unit || 'шт'}</span>
+        </div>
       </label>
     `;
     list.appendChild(listItem);
@@ -236,6 +246,17 @@ function copyRequestText() {
   navigator.clipboard.writeText(text).catch(() => {
     console.warn('Не удалось скопировать заявку в буфер обмена');
   });
+}
+
+function resetRequestStatuses() {
+  products = products.map((product) => {
+    if (product.status === 'need') {
+      return { ...product, status: 'have' };
+    }
+    return product;
+  });
+  saveProducts(products);
+  updateProductView();
 }
 
 function openRequestModal(items) {
@@ -259,7 +280,7 @@ function openProductModal(productId = null) {
   const inputName = document.getElementById('product-name');
   const inputDescription = document.getElementById('product-description');
   const inputCategory = document.getElementById('product-category');
-  const inputQuantity = document.getElementById('product-quantity');
+  const inputUnit = document.getElementById('product-unit');
 
   if (productId) {
     const product = products.find((item) => item.id === productId);
@@ -273,7 +294,7 @@ function openProductModal(productId = null) {
     inputName.value = product.name;
     inputDescription.value = product.description;
     inputCategory.value = product.category;
-    inputQuantity.value = product.quantity || 1;
+    inputUnit.value = product.unit || 'шт';
   } else {
     mode.textContent = 'Добавление товара';
     title.textContent = 'Новый товар';
@@ -281,7 +302,7 @@ function openProductModal(productId = null) {
     inputName.value = '';
     inputDescription.value = '';
     inputCategory.value = 'bar';
-    inputQuantity.value = 1;
+    inputUnit.value = 'шт';
   }
 
   modal.classList.add('open');
@@ -307,13 +328,13 @@ function handleProductFormSubmit(event) {
   const inputName = document.getElementById('product-name');
   const inputDescription = document.getElementById('product-description');
   const inputCategory = document.getElementById('product-category');
-  const inputQuantity = document.getElementById('product-quantity');
+  const inputUnit = document.getElementById('product-unit');
 
   const productData = {
     name: inputName.value.trim(),
     description: inputDescription.value.trim(),
     category: inputCategory.value,
-    quantity: Math.max(1, parseInt(inputQuantity.value, 10) || 1),
+    unit: inputUnit.value || 'шт',
   };
 
   if (!productData.name) {
@@ -326,7 +347,7 @@ function handleProductFormSubmit(event) {
       product.name = productData.name;
       product.description = productData.description;
       product.category = productData.category;
-      product.quantity = productData.quantity;
+      product.unit = productData.unit;
     }
   } else {
     const newId = `${productData.category}-${Date.now()}`;
@@ -403,39 +424,6 @@ function handleRemindLater() {
   });
 }
 
-function setupInstallPrompt() {
-  const installButton = document.getElementById('install-app');
-  if (!installButton) {
-    return;
-  }
-
-  let deferredInstallPrompt = null;
-
-  window.addEventListener('beforeinstallprompt', (event) => {
-    event.preventDefault();
-    deferredInstallPrompt = event;
-    installButton.hidden = false;
-  });
-
-  installButton.addEventListener('click', async () => {
-    if (!deferredInstallPrompt) {
-      return;
-    }
-
-    deferredInstallPrompt.prompt();
-    const choiceResult = await deferredInstallPrompt.userChoice;
-    if (choiceResult.outcome === 'accepted') {
-      console.log('User accepted the install prompt');
-    }
-    deferredInstallPrompt = null;
-    installButton.hidden = true;
-  });
-
-  window.addEventListener('appinstalled', () => {
-    installButton.hidden = true;
-  });
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   products = loadProducts();
   updateProductView();
@@ -444,7 +432,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initSearchInput(updateSearch);
   setupReminder();
   registerServiceWorker();
-  setupInstallPrompt();
 
   const requestButton = document.getElementById('generate-request');
   const addButton = document.getElementById('add-product');
@@ -453,6 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('close-request-bottom'),
   ];
   const copyButton = document.getElementById('copy-request');
+  const resetButton = document.getElementById('reset-request');
   const closeProductButton = document.getElementById('close-product-modal');
   const cancelProductButton = document.getElementById('cancel-product');
   const productForm = document.getElementById('product-form');
@@ -471,6 +459,13 @@ document.addEventListener('DOMContentLoaded', () => {
   copyButton.addEventListener('click', () => {
     copyRequestText();
   });
+
+  if (resetButton) {
+    resetButton.addEventListener('click', () => {
+      resetRequestStatuses();
+      closeRequestModal();
+    });
+  }
 
   closeProductButton.addEventListener('click', closeProductModal);
   cancelProductButton.addEventListener('click', closeProductModal);

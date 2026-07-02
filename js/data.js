@@ -4,6 +4,7 @@ export const categories = [
   { id: 'bar', title: 'Бар', icon: '☕' },
   { id: 'expendables', title: 'Расходники', icon: '🥤' },
   { id: 'household', title: 'Хозтовары', icon: '🧹' },
+  { id: 'kitchen', title: 'Кухня', icon: '🍽' },
 ];
 
 export const initialProducts = [
@@ -27,6 +28,7 @@ export const initialProducts = [
     name: 'Сэндвич',
     description: 'Лёгкий перекус для барменов и персонала.',
     status: 'have',
+    unit: 'шт',
   },
   {
     id: 'expendables-1',
@@ -48,6 +50,7 @@ export const initialProducts = [
     name: 'Антисептик',
     description: 'Чтобы поддерживать чистоту рук и поверхностей.',
     status: 'have',
+    unit: 'л',
   },
   {
     id: 'household-1',
@@ -62,12 +65,29 @@ export const initialProducts = [
     name: 'Мыло',
     description: 'Нейтральный аромат для комфортной уборки.',
     status: 'have',
+    unit: 'шт',
   },
   {
     id: 'household-3',
     category: 'household',
     name: 'Ведро',
     description: 'Практичный помощник для мытья полов.',
+    status: 'have',
+    unit: 'шт',
+  },
+  {
+    id: 'kitchen-1',
+    category: 'kitchen',
+    name: 'Набор посуды',
+    description: 'Тарелки и миски для готовки и подачи.',
+    status: 'have',
+    unit: 'шт',
+  },
+  {
+    id: 'kitchen-2',
+    category: 'kitchen',
+    name: 'Приборы',
+    description: 'Ложки, вилки и ножи для кухни.',
     status: 'have',
   },
 ];
